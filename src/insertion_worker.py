@@ -1,6 +1,6 @@
 import json
 from abstract_worker import AbstractWorker
-from settings import INSERTION_QUEUE, AMQP_URL
+from settings import INSERTION_QUEUE
 from utils import get_mysql_connection
 
 
@@ -8,8 +8,8 @@ class InsertionWorker(AbstractWorker):
 
     QUEUE = INSERTION_QUEUE
 
-    def on_message(self, ch, method, properties, body):
-        self.logger.info(f'Insertion: {self.name} receive message')
+    def on_message(self, channel, method, properties, body):
+        self.logger.debug(f'{self.name} receive message: {body}')
 
         body = json.loads(body)
         client = body.get('client')
