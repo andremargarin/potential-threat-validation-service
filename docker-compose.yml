@@ -1,0 +1,42 @@
+version: '3.7'
+
+volumes:
+  mysql_data:
+  rabbitmq_data:
+
+services:
+  validation-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: validation-service
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq-service
+    environment:
+      WAIT_HOSTS: mysql-service:3306, rabbitmq-service:5672
+
+  mysql-service:
+    image: mysql
+    container_name: mysql-service
+    hostname: mysql-service
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/database.sql:/docker-entrypoint-initdb.d/database.sql
+
+  rabbitmq-service:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-service
+    hostname: rabbitmq-service
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    env_file:
+      - .env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
